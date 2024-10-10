@@ -12,6 +12,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 )
 
 var (
@@ -35,7 +36,7 @@ var ( // universal regexes
 )
 
 func main() {
-	// now := time.Now()
+	now := time.Now()
 
 	flag.Parse()
 	useSeeds := len(*seedsFilepath) > 0
@@ -87,7 +88,7 @@ func main() {
 			log.Fatal(err)
 		}
 
-		host := StandardizeHost(u.Host, useSeeds, seeds)
+		host := StandardizeHost(u.Host, useSeeds, seeds, *harsh)
 
 		var path string
 		if !*ignorePath {
@@ -127,6 +128,5 @@ func main() {
 		log.Fatalf("Error: %v", err)
 	}
 
-	// fmt.Println()
-	// fmt.Println("time elapse:", time.Since(now))
+	fmt.Fprintln(os.Stderr, "time elapse:", time.Since(now))
 }

@@ -8,12 +8,13 @@ import (
 )
 
 var ( // host specific regexes
-	hostNumbersRegex = regexp.MustCompile(`(\.|\-)[0-9]+(\.|\-)`)
-	hostLangLocRegex = regexp.MustCompile(`(^|\.)[a-z]{2}-[a-z]{2}(\.|$)`)
-	hostLangRegex    = regexp.MustCompile(`(^|\.|\-)(at|ar|au|bd|be|br|ca|ch|cn|de|dk|es|fi|fr|gr|id|in|it|jp|kz|mx|my|nl|no|ph|pl|pt|py|ru|se|sg|tr|uk|us|uy|vn)(\.|\-|:|$)`)
+	hostNumbersRegex      = regexp.MustCompile(`(\.|\-)[0-9]+(\.|\-)`)
+	hostLang5Regex        = regexp.MustCompile(`(^|\.)[a-z]{2}-[a-z]{2}(\.|$)`)
+	hostAll2LettersRegex  = regexp.MustCompile(`(^|\.|\-)[a-z]{2}(\.|\-|:|$)`)
+	hostSome2LettersRegex = regexp.MustCompile(`(^|\.|\-)(ar|be|br|cn|de|dk|es|fr|it|ja|nl|ph|pl|pt|ru|sg|tr|vi|vn|za|zh)(\.|\-|:|$)`)
 )
 
-func StandardizeHost(host string, useSeeds bool, seeds []string) string {
+func StandardizeHost(host string, useSeeds bool, seeds []string, harsh bool) string {
 	host = strings.ToLower(host)
 
 	if useSeeds {
@@ -37,10 +38,12 @@ func StandardizeHost(host string, useSeeds bool, seeds []string) string {
 	}
 
 	// treat common language notation as equals
-	host = hostLangLocRegex.ReplaceAllString(host, ".xx-xx.")
-	host = hostLangLocRegex.ReplaceAllString(host, ".xx-xx.")
-	host = hostLangRegex.ReplaceAllString(host, ".xx.")
-	host = hostLangRegex.ReplaceAllString(host, ".xx.")
+	host = hostLang5Regex.ReplaceAllString(host, ".xx-xx.")
+	if harsh {
+		host = hostAll2LettersRegex.ReplaceAllString(host, ".xx.")
+	} else {
+		host = hostSome2LettersRegex.ReplaceAllString(host, ".xx.")
+	}
 
 	// treat any numbers as equals (if host != IP)
 	if letterRegex.MatchString(host) {

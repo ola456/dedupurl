@@ -7,28 +7,33 @@ import (
 )
 
 var ( // path specific regexes
-	pathLangLocRegex     = regexp.MustCompile(`/[a-z]{2}[-/_][a-z]{2}/`)
-	pathLangRegex        = regexp.MustCompile(`/[a-z]{2}/`)
-	pathLangHtmlExtRegex = regexp.MustCompile(`/[a-z]{2}\.html/`)
-	pathHarshRegex       = regexp.MustCompile(`/([a-z-_]{3}[a-z-_]+)/.`)
+	pathLang5Regex               = regexp.MustCompile(`/[a-z]{2}[-/_][a-z]{2}/`)
+	pathLangRegex                = regexp.MustCompile(`/[a-z]{2}/`)
+	pathHarshLangDotRegex        = regexp.MustCompile(`/[a-z]{2}\.`)
+	pathHarshLangDashRegex       = regexp.MustCompile(`/[a-z]{2}-`)
+	pathHarshLangUnderscoreRegex = regexp.MustCompile(`/[a-z]{2}_`)
+	pathHarshRegex               = regexp.MustCompile(`/([a-z]{3}[a-z-_]+)/.`)
 )
 
 func StandardizePath(p string, harsh bool) string {
 	p = strings.ToLower(p)
 
-	p = path.Clean(p) + "/"                                   // treat with/without trailing slash as equals (appending slash for regexes)
-	p = uuidRegex.ReplaceAllString(p, "uuid")                 // treat any uuid as equals
-	p = hexRegex.ReplaceAllString(p, "0a9f")                  // treat most hexhashes as equals
-	p = numbersRegex.ReplaceAllString(p, "0")                 // treat any numbers as equals
-	p = pathLangLocRegex.ReplaceAllString(p, "/xx-xx/")       // treat xx-xx language notation as equals
-	p = pathLangRegex.ReplaceAllString(p, "/xx/")             // treat xx language notation as equals
-	p = pathLangHtmlExtRegex.ReplaceAllString(p, "/xx.html/") // treat xx language notation as equals
+	p = path.Clean(p) + "/"                           // treat with/without trailing slash as equals (appending slash for regexes)
+	p = uuidRegex.ReplaceAllString(p, "uuid")         // treat any uuid as equals
+	p = hexRegex.ReplaceAllString(p, "0a9f")          // treat most hexhashes as equals
+	p = numbersRegex.ReplaceAllString(p, "0")         // treat any numbers as equals
+	p = pathLang5Regex.ReplaceAllString(p, "/xx-xx/") // treat xx-xx language notation as equals
+	p = pathLangRegex.ReplaceAllString(p, "/xx/")     // treat xx language notation as equals
 
 	if harsh {
+		p = pathHarshLangDotRegex.ReplaceAllString(p, "/xx.")
+		p = pathHarshLangDashRegex.ReplaceAllString(p, "/xx-")
+		p = pathHarshLangUnderscoreRegex.ReplaceAllString(p, "/xx_")
+
 		// handle 3letters+hyphon/underscore/letter(s)-slugs as equals
 		// e.g. treat both /author/ellen & /author/oliver as /author/x
-		// treat both /page/qwe as /page/x & /page/qwe/qwe as /page/x/x
-		// treat both /jobs/qwe as /jobs/x & /jobs/qwe.html as /jobs/x.x
+		// treat /page/qwe as /page/x & /page/qwe/qwe as /page/x/x
+		// treat /jobs/qwe as /jobs/x & /jobs/qwe.html as /jobs/x.x
 
 		// additonal setup for common dupz
 		p = strings.Replace(p, "/job/", "/xjobx/", 1)
