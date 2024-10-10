@@ -12,7 +12,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"time"
 )
 
 var (
@@ -36,7 +35,7 @@ var ( // universal regexes
 )
 
 func main() {
-	now := time.Now()
+	// now := time.Now()
 
 	flag.Parse()
 	useSeeds := len(*seedsFilepath) > 0
@@ -128,5 +127,5 @@ func main() {
 		log.Fatalf("Error: %v", err)
 	}
 
-	fmt.Fprintln(os.Stderr, "time elapse:", time.Since(now))
+	// fmt.Fprintln(os.Stderr, "time elapse:", time.Since(now))
 }
