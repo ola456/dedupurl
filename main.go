@@ -84,7 +84,11 @@ func main() {
 
 		u, err := url.Parse(line)
 		if err != nil {
-			log.Fatal(err)
+			escapedLine := strings.ReplaceAll(line, "%", "%25")
+			u, err = url.Parse(escapedLine)
+			if err != nil {
+				log.Fatal(err)
+			}
 		}
 
 		host := StandardizeHost(u.Host, useSeeds, seeds, *harsh)
