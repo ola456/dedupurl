@@ -17,6 +17,7 @@ import (
 var (
 	harsh          = flag.Bool("harsh", false, "harsher deduplication, for example, treats /blog/first & /blog/another as equals")
 	ignoreFragment = flag.Bool("ignore-fragment", false, "treat any fragments as equals")
+	ignoreHost     = flag.Bool("ignore-host", false, "treat any hosts as equals")
 	ignorePath     = flag.Bool("ignore-path", false, "treat any paths as equals")
 	ignoreQuery    = flag.Bool("ignore-query", false, "treat any querystrings as equals")
 	maxPerHost     = flag.Int("max-per-host", 0, "only return first X per host")
@@ -81,6 +82,9 @@ func main() {
 	scanner := bufio.NewScanner(rawInput)
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
+		if line == "" {
+			continue
+		}
 
 		u, err := url.Parse(line)
 		if err != nil {
@@ -91,7 +95,10 @@ func main() {
 			}
 		}
 
-		host := StandardizeHost(u.Host, useSeeds, seeds, *harsh)
+		var host string
+		if !*ignoreHost {
+			host = StandardizeHost(u.Host, useSeeds, seeds, *harsh)
+		}
 
 		var path string
 		if !*ignorePath {
