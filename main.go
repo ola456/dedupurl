@@ -20,11 +20,11 @@ var (
 	ignoreHost     = flag.Bool("ignore-host", false, "treat any hosts as equals")
 	ignorePath     = flag.Bool("ignore-path", false, "treat any paths as equals")
 	ignoreQuery    = flag.Bool("ignore-query", false, "treat any querystrings as equals")
+	ignoreValues   = flag.Bool("ignore-values", false, "treat any value in key/value pairs as equals")
 	maxPerHost     = flag.Int("max-per-host", 0, "only return first X per host")
+	seedsFilepath  = flag.String("seeds", "", "seeds file (e.g. path/to/seeds.txt) with cidr/s (e.g. 192.0.2.0/24) or sub-wildcard domains (e.g. *.example.org)")
 	test           = flag.Bool("test", false, "print uniques and how many entries they capture")
 	uniqKeep       = flag.Int("keep", 1, "keep first X dups")
-	uniqKeys       = flag.Bool("uniq-keys", false, "treat any value in key/value pairs equally")
-	seedsFilepath  = flag.String("seeds", "", "seeds file (e.g. path/to/seeds.txt) with cidr/s (e.g. 192.0.2.0/24) or sub-wildcard domains (e.g. *.example.org)")
 )
 
 var ( // universal regexes
@@ -107,12 +107,12 @@ func main() {
 
 		var query string
 		if !*ignoreQuery && len(u.RawQuery) > 0 {
-			query = StandardizeQueryAndFragment(u.RawQuery, *uniqKeys)
+			query = StandardizeQueryAndFragment(u.RawQuery, *ignoreValues)
 		}
 
 		var fragment string
 		if !*ignoreFragment && len(u.Fragment) > 0 {
-			fragment = StandardizeQueryAndFragment(u.Fragment, *uniqKeys)
+			fragment = StandardizeQueryAndFragment(u.Fragment, *ignoreValues)
 		}
 
 		unique := host + path + "?" + query + "#" + fragment

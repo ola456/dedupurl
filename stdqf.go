@@ -12,7 +12,7 @@ var (
 	ampDivider      = "&"
 )
 
-func StandardizeQueryAndFragment(qf string, uniqKeys bool) string {
+func StandardizeQueryAndFragment(qf string, ignoreValues bool) string {
 	qf = strings.ToLower(qf)
 
 	qfSlice := strings.Split(qf, ampDivider)
@@ -20,7 +20,7 @@ func StandardizeQueryAndFragment(qf string, uniqKeys bool) string {
 	qf = strings.Join(qfSlice, ampDivider)
 	qf = strings.Trim(qf, ampDivider) + "&" // appending & for regexes
 
-	if uniqKeys {
+	if ignoreValues {
 		qf = regexp.MustCompile(`=.*?&`).ReplaceAllString(qf, "=1&") // treat any values as equals
 	}
 
